@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import BrandMark from "./BrandMark";
 import ClockPanel from "./hud/ClockPanel";
+import HourFormatToggle from "./hud/HourFormatToggle";
 import TimeScrubber from "./hud/TimeScrubber";
 import { useNow } from "@/hooks/useNow";
 import { useLocation } from "@/hooks/useLocation";
@@ -57,6 +58,9 @@ export default function App() {
   // displayed time keeps ticking, just shifted — so every clock and the globe's
   // terminator move together as the offset changes.
   const [offsetMinutes, setOffsetMinutes] = useState(0);
+
+  // 12-hour (AM/PM) vs 24-hour clock display, applied to every clock panel.
+  const [hour12, setHour12] = useState(false);
   const displayTime = useMemo(
     () => (offsetMinutes === 0 ? now : new Date(now.getTime() + offsetMinutes * 60_000)),
     [now, offsetMinutes],
@@ -94,12 +98,15 @@ export default function App() {
 
       {/* Clock HUD — the user's own location, plus any tapped location below. */}
       <div className="absolute right-5 top-5 flex flex-col items-end gap-3">
+        <HourFormatToggle hour12={hour12} onChange={setHour12} />
+
         {location && (
           <ClockPanel
             time={displayTime}
             timeZone={timeZone}
             eyebrow={location.source === "gps" ? "Your location" : "Your time zone"}
             accent="amber"
+            hour12={hour12}
           />
         )}
 
@@ -111,6 +118,7 @@ export default function App() {
               title={timeZoneLabel(focus.timeZone)}
               eyebrow="Tapped location"
               accent="cyan"
+              hour12={hour12}
             />
             <button
               type="button"
