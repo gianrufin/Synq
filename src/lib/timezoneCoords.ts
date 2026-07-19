@@ -98,9 +98,16 @@ export function timeZoneToLatLon(timeZone: string, at: Date = new Date()): LatLo
   if (known) return known;
 
   // Fallback: derive longitude from the GMT offset, e.g. "GMT-4" -> -60°.
-  const label = offsetLabel(at, timeZone); // "GMT+2", "GMT-4", "GMT"
-  const match = label.match(/GMT([+-]\d+)/);
-  const offsetHours = match ? parseInt(match[1], 10) : 0;
+  // Handles fractional offsets too ("GMT+5:30" -> 82.5°, "GMT+5:45" -> 86.25°).
+  const label = offsetLabel(at, timeZone); // "GMT+2", "GMT-4:30", "GMT"
+  const match = label.match(/GMT([+-])(\d+)(?::(\d+))?/);
+  let offsetHours = 0;
+  if (match) {
+    const sign = match[1] === "-" ? -1 : 1;
+    const hours = parseInt(match[2], 10);
+    const minutes = match[3] ? parseInt(match[3], 10) : 0;
+    offsetHours = sign * (hours + minutes / 60);
+  }
   const lon = Math.max(-180, Math.min(180, offsetHours * 15));
   return { lat: 0, lon };
 }
