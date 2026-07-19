@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import BrandMark from "./BrandMark";
+import SceneBoundary from "./SceneBoundary";
 import ClockPanel from "./hud/ClockPanel";
 import HourFormatToggle from "./hud/HourFormatToggle";
 import TimeScrubber from "./hud/TimeScrubber";
@@ -70,12 +71,14 @@ export default function App() {
     <main className="space-backdrop relative h-[100dvh] w-screen overflow-hidden">
       {/* 3D globe fills the viewport */}
       <div className="absolute inset-0">
-        <GlobeScene
-          time={displayTime}
-          marker={location?.coords}
-          focus={focus?.coords}
-          onPick={handlePick}
-        />
+        <SceneBoundary>
+          <GlobeScene
+            time={displayTime}
+            marker={location?.coords}
+            focus={focus?.coords}
+            onPick={handlePick}
+          />
+        </SceneBoundary>
       </div>
 
       {/* subtle vignette so the HUD reads over the globe */}

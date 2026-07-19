@@ -58,6 +58,14 @@ export default function GlobeScene({
       onCreated={({ gl }) => {
         gl.toneMapping = THREE.ACESFilmicToneMapping;
         gl.toneMappingExposure = 1.05;
+        // Preventing the default on context loss lets the browser restore the
+        // GL context (e.g. after the GPU resets or a tab is backgrounded)
+        // instead of leaving a permanently frozen canvas.
+        gl.domElement.addEventListener(
+          "webglcontextlost",
+          (e) => e.preventDefault(),
+          false,
+        );
       }}
       dpr={[1, 2]}
     >

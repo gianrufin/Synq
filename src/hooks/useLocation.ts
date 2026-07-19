@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { LatLon } from "@/lib/geo";
 import { detectTimeZone } from "@/lib/time";
+import { latLonToTimeZone } from "@/lib/reverseTz";
 import { timeZoneToLatLon } from "@/lib/timezoneCoords";
 
 export type LocationSource = "timezone" | "gps";
@@ -46,9 +47,13 @@ export function useLocation(): UserLocation | null {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         if (cancelled) return;
+        const { latitude, longitude } = pos.coords;
+        // Derive the zone from the real coordinates rather than the browser's
+        // configured one — so a traveller whose system clock is still on their
+        // home zone sees the time where they physically are.
         setLocation({
-          coords: { lat: pos.coords.latitude, lon: pos.coords.longitude },
-          timeZone,
+          coords: { lat: latitude, lon: longitude },
+          timeZone: latLonToTimeZone(latitude, longitude),
           source: "gps",
         });
       },
