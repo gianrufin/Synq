@@ -6,15 +6,24 @@ import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import Earth from "./Earth";
 import Starfield from "./Starfield";
+import LocationMarker from "./LocationMarker";
 import { sunDirection } from "@/lib/geo";
+import type { LatLon } from "@/lib/geo";
 import { useNow } from "@/hooks/useNow";
 
 /**
  * The full-viewport WebGL scene: starfield, day/night Earth, ambient/sun
  * lighting, auto-rotating orbit controls. `time` drives the day/night
- * terminator so the same clock can later feed the time-scrubber.
+ * terminator so the same clock can later feed the time-scrubber. `marker`, when
+ * present, highlights the user's location on the surface.
  */
-export default function GlobeScene({ time }: { time: Date }) {
+export default function GlobeScene({
+  time,
+  marker,
+}: {
+  time: Date;
+  marker?: LatLon | null;
+}) {
   // Recompute the sun vector roughly once a minute to keep the terminator live
   // without thrashing (the scene itself renders continuously).
   const minuteTick = Math.floor(time.getTime() / 60_000);
@@ -40,6 +49,7 @@ export default function GlobeScene({ time }: { time: Date }) {
       <Suspense fallback={null}>
         <Starfield />
         <Earth sunDir={sunDir} />
+        {marker && <LocationMarker coords={marker} />}
       </Suspense>
 
       <OrbitControls

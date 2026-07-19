@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import BrandMark from "./BrandMark";
 import ClockPanel from "./hud/ClockPanel";
 import { useNow } from "@/hooks/useNow";
-import { detectTimeZone } from "@/lib/time";
+import { useLocation } from "@/hooks/useLocation";
 
 // The WebGL scene touches `window`; load it client-only.
 const GlobeScene = dynamic(() => import("./GlobeScene"), {
@@ -29,21 +28,18 @@ function SceneLoader() {
 
 export default function App() {
   const now = useNow(1000);
-  const [timeZone, setTimeZone] = useState<string>("UTC");
-  // Clocks are time-dependent, so they'd mismatch between server and client
-  // render. Gate them until after mount to keep hydration clean.
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setTimeZone(detectTimeZone());
-    setMounted(true);
-  }, []);
+  // Client-only: resolves the user's time zone instantly, then upgrades to
+  // precise GPS coordinates if they grant permission. `null` until mounted,
+  // which also keeps the time-dependent clock out of the server render so
+  // hydration stays clean.
+  const location = useLocation();
+  const timeZone = location?.timeZone ?? "UTC";
 
   return (
     <main className="space-backdrop relative h-[100dvh] w-screen overflow-hidden">
       {/* 3D globe fills the viewport */}
       <div className="absolute inset-0">
-        <GlobeScene time={now} />
+        <GlobeScene time={now} marker={location?.coords} />
       </div>
 
       {/* subtle vignette so the HUD reads over the globe */}
@@ -66,11 +62,11 @@ export default function App() {
 
       {/* Local clock HUD */}
       <div className="absolute right-5 top-5">
-        {mounted && (
+        {location && (
           <ClockPanel
             time={now}
             timeZone={timeZone}
-            eyebrow="Your location"
+            eyebrow={location.source === "gps" ? "Your location" : "Your time zone"}
             accent="amber"
           />
         )}
