@@ -34,6 +34,18 @@ export default function CameraFocus({
     }
   }, [target]);
 
+  // Yield to the user: the moment they grab the globe, abandon the reframe so
+  // manual orbiting isn't fought frame-by-frame by the animation.
+  useEffect(() => {
+    const controls = controlsRef.current;
+    if (!controls) return;
+    const cancel = () => {
+      animating.current = false;
+    };
+    controls.addEventListener("start", cancel);
+    return () => controls.removeEventListener("start", cancel);
+  }, [controlsRef]);
+
   useFrame((_, delta) => {
     const controls = controlsRef.current;
     if (!animating.current || !controls || !target) return;

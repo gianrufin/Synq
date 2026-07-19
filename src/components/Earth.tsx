@@ -91,28 +91,28 @@ interface EarthProps {
   sunDir: THREE.Vector3;
   /** Fired with the tapped geographic coordinate when the surface is clicked. */
   onPick?: (coords: LatLon) => void;
+  /** When true, hold the clouds still (respects "reduce motion"). */
+  reducedMotion?: boolean;
 }
 
-export default function Earth({ sunDir, onPick }: EarthProps) {
-  const [dayMap, nightMap, specMap, bumpMap, cloudMap] = useLoader(
+export default function Earth({ sunDir, onPick, reducedMotion }: EarthProps) {
+  const [dayMap, nightMap, specMap, cloudMap] = useLoader(
     THREE.TextureLoader,
     [
       "/textures/earth_day.jpg",
       "/textures/earth_night.jpg",
       "/textures/earth_specular.jpg",
-      "/textures/earth_bump.jpg",
       "/textures/earth_clouds.png",
     ],
   );
 
   useMemo(() => {
-    [dayMap, nightMap, specMap, bumpMap, cloudMap].forEach((t) => {
+    [dayMap, nightMap, specMap, cloudMap].forEach((t) => {
       t.colorSpace = THREE.SRGBColorSpace;
       t.anisotropy = 8;
     });
-    bumpMap.colorSpace = THREE.NoColorSpace;
     specMap.colorSpace = THREE.NoColorSpace;
-  }, [dayMap, nightMap, specMap, bumpMap, cloudMap]);
+  }, [dayMap, nightMap, specMap, cloudMap]);
 
   const earthUniforms = useMemo(
     () => ({
@@ -148,7 +148,7 @@ export default function Earth({ sunDir, onPick }: EarthProps) {
     earthUniforms.sunDir.value.copy(sunDir);
     atmosphereUniforms.cameraPosW.value.copy(camera.position);
     atmosphereUniforms.sunDir.value.copy(sunDir);
-    if (cloudRef.current) {
+    if (cloudRef.current && !reducedMotion) {
       cloudRef.current.rotation.y += delta * 0.006; // gentle cloud drift
     }
   });

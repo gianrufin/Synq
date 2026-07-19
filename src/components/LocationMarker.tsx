@@ -22,9 +22,12 @@ const COLORS = {
 export default function LocationMarker({
   coords,
   color = "amber",
+  reducedMotion,
 }: {
   coords: LatLon;
   color?: keyof typeof COLORS;
+  /** When true, hold the halo static (respects "reduce motion"). */
+  reducedMotion?: boolean;
 }) {
   const tint = COLORS[color];
   const groupRef = useRef<THREE.Group>(null);
@@ -43,11 +46,11 @@ export default function LocationMarker({
     return { position, quaternion };
   }, [coords.lat, coords.lon]);
 
-  // Pulse the halo: expand + fade on a ~2.4s loop.
+  // Pulse the halo: expand + fade on a ~2.4s loop. Held static under reduce-motion.
   useFrame((_, delta) => {
     const halo = haloRef.current;
     const mat = haloMatRef.current;
-    if (!halo || !mat) return;
+    if (!halo || !mat || reducedMotion) return;
     const t = ((halo.userData.t ?? 0) + delta) % 2.4;
     halo.userData.t = t;
     const k = t / 2.4; // 0 -> 1
