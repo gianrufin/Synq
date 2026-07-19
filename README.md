@@ -19,8 +19,8 @@ floating world-clock HUD.
 - [x] Clouds, atmospheric rim glow, starfield
 - [x] Auto-rotate when idle + full orbit/zoom control
 - [x] Glassmorphism HUD: brand mark + local-time clock panel
-- [ ] Location detection + highlight user's location on the globe
-- [ ] Tap-to-view: fly camera to a tapped location, show its clock
+- [x] Location detection + highlight user's location on the globe
+- [x] Tap-to-view: fly camera to a tapped location, show its clock
 - [ ] Time-scrubber: drag through time, sync clocks + the globe's shadow
 
 ## Tech stack
@@ -30,7 +30,7 @@ floating world-clock HUD.
 | Framework    | Next.js 14 (App Router) + React 18 + TypeScript    |
 | 3D rendering | React Three Fiber + drei + three.js (custom GLSL)  |
 | Styling      | TailwindCSS, glassmorphism design system           |
-| Time logic   | Native `Intl` API (`date-fns-tz` available)        |
+| Time logic   | Native `Intl` API; `tz-lookup` for lat/lon → zone  |
 
 ## Design system
 
@@ -57,8 +57,10 @@ npm run dev      # http://localhost:3000
 ```
 src/
   app/            # Next.js App Router (layout, page, globals, icon)
-  components/     # BrandMark, Earth, Starfield, GlobeScene, App, hud/*
-  hooks/          # useNow (ticking clock)
-  lib/            # geo (sun/terminator math), time (Intl formatting)
+  components/     # BrandMark, Earth, Starfield, GlobeScene, LocationMarker,
+                  #   CameraFocus, App, hud/*
+  hooks/          # useNow (ticking clock), useLocation (tz + GPS)
+  lib/            # geo (sun/terminator + lat/lon projection), time (Intl),
+                  #   timezoneCoords, reverseTz (tapped lat/lon -> IANA zone)
 public/textures/  # Earth day/night/spec/bump/cloud maps
 ```
