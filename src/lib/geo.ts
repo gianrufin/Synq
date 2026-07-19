@@ -35,6 +35,21 @@ export function latLonToVector3(
 }
 
 /**
+ * Inverse of {@link latLonToVector3}: turn a point/direction on the (unrotated)
+ * Earth mesh back into geographic coordinates. Used to translate a raycast hit
+ * from tapping the globe into a lat/lon. Longitude is normalised to [-180, 180].
+ */
+export function vector3ToLatLon(v: THREE.Vector3): LatLon {
+  const dir = v.clone().normalize();
+  const phi = Math.acos(THREE.MathUtils.clamp(dir.y, -1, 1));
+  const lat = 90 - phi / DEG2RAD;
+  const theta = Math.atan2(dir.z, -dir.x);
+  let lon = theta / DEG2RAD + TEXTURE_LON_OFFSET;
+  lon = ((((lon + 180) % 360) + 360) % 360) - 180;
+  return { lat, lon };
+}
+
+/**
  * Subsolar point — the lat/lon on Earth where the sun is directly overhead at a
  * given instant. Uses a standard low-precision solar-position approximation,
  * which is more than accurate enough for a day/night terminator.

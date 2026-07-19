@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo, useRef } from "react";
-import { useFrame, useLoader } from "@react-three/fiber";
+import { useFrame, useLoader, type ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
+import { vector3ToLatLon } from "@/lib/geo";
+import type { LatLon } from "@/lib/geo";
 
 const GLOBE_RADIUS = 2;
 
@@ -87,9 +89,11 @@ const atmosphereFragmentShader = /* glsl */ `
 interface EarthProps {
   /** World-space unit vector pointing toward the sun. */
   sunDir: THREE.Vector3;
+  /** Fired with the tapped geographic coordinate when the surface is clicked. */
+  onPick?: (coords: LatLon) => void;
 }
 
-export default function Earth({ sunDir }: EarthProps) {
+export default function Earth({ sunDir, onPick }: EarthProps) {
   const [dayMap, nightMap, specMap, bumpMap, cloudMap] = useLoader(
     THREE.TextureLoader,
     [
@@ -131,6 +135,14 @@ export default function Earth({ sunDir }: EarthProps) {
 
   const cloudRef = useRef<THREE.Mesh>(null);
 
+  const handleClick = (e: ThreeEvent<MouseEvent>) => {
+    if (!onPick) return;
+    e.stopPropagation();
+    // The surface mesh is unrotated at the origin, so the world-space hit point
+    // is already in the mesh's frame — convert it straight to lat/lon.
+    onPick(vector3ToLatLon(e.point));
+  };
+
   useFrame(({ camera }, delta) => {
     earthUniforms.cameraPosW.value.copy(camera.position);
     earthUniforms.sunDir.value.copy(sunDir);
@@ -144,7 +156,7 @@ export default function Earth({ sunDir }: EarthProps) {
   return (
     <group>
       {/* Surface */}
-      <mesh>
+      <mesh onClick={handleClick}>
         <sphereGeometry args={[GLOBE_RADIUS, 96, 96]} />
         <shaderMaterial
           vertexShader={earthVertexShader}
@@ -153,8 +165,8 @@ export default function Earth({ sunDir }: EarthProps) {
         />
       </mesh>
 
-      {/* Clouds */}
-      <mesh ref={cloudRef}>
+      {/* Clouds (non-interactive so clicks reach the surface) */}
+      <mesh ref={cloudRef} raycast={() => null}>
         <sphereGeometry args={[GLOBE_RADIUS * 1.012, 64, 64]} />
         <meshStandardMaterial
           map={cloudMap}
@@ -166,8 +178,8 @@ export default function Earth({ sunDir }: EarthProps) {
         />
       </mesh>
 
-      {/* Atmosphere glow shell (rendered from the inside) */}
-      <mesh scale={1.09}>
+      {/* Atmosphere glow shell (rendered from the inside, non-interactive) */}
+      <mesh scale={1.09} raycast={() => null}>
         <sphereGeometry args={[GLOBE_RADIUS, 64, 64]} />
         <shaderMaterial
           vertexShader={atmosphereVertexShader}
