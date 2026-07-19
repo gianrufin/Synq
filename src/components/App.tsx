@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import BrandMark from "./BrandMark";
 import ClockPanel from "./hud/ClockPanel";
+import TimeScrubber from "./hud/TimeScrubber";
 import { useNow } from "@/hooks/useNow";
 import { useLocation } from "@/hooks/useLocation";
 import { latLonToTimeZone } from "@/lib/reverseTz";
@@ -52,12 +53,21 @@ export default function App() {
     setFocus({ coords, timeZone: latLonToTimeZone(coords.lat, coords.lon) });
   }, []);
 
+  // Time-scrubber offset from the live "now", in minutes (0 = live). The
+  // displayed time keeps ticking, just shifted — so every clock and the globe's
+  // terminator move together as the offset changes.
+  const [offsetMinutes, setOffsetMinutes] = useState(0);
+  const displayTime = useMemo(
+    () => (offsetMinutes === 0 ? now : new Date(now.getTime() + offsetMinutes * 60_000)),
+    [now, offsetMinutes],
+  );
+
   return (
     <main className="space-backdrop relative h-[100dvh] w-screen overflow-hidden">
       {/* 3D globe fills the viewport */}
       <div className="absolute inset-0">
         <GlobeScene
-          time={now}
+          time={displayTime}
           marker={location?.coords}
           focus={focus?.coords}
           onPick={handlePick}
@@ -86,7 +96,7 @@ export default function App() {
       <div className="absolute right-5 top-5 flex flex-col items-end gap-3">
         {location && (
           <ClockPanel
-            time={now}
+            time={displayTime}
             timeZone={timeZone}
             eyebrow={location.source === "gps" ? "Your location" : "Your time zone"}
             accent="amber"
@@ -96,7 +106,7 @@ export default function App() {
         {focus && (
           <div className="relative animate-fade-up">
             <ClockPanel
-              time={now}
+              time={displayTime}
               timeZone={focus.timeZone}
               title={timeZoneLabel(focus.timeZone)}
               eyebrow="Tapped location"
@@ -121,11 +131,16 @@ export default function App() {
         )}
       </div>
 
-      {/* Footer hint (time-scrubber lands here next) */}
-      <footer className="pointer-events-none absolute bottom-5 left-1/2 -translate-x-1/2">
-        <div className="glass rounded-full px-4 py-2 text-[11px] tracking-wide text-ink-500">
+      {/* Footer — time-scrubber, with a compact interaction hint above it. */}
+      <footer className="absolute bottom-5 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2">
+        <div className="pointer-events-none text-[11px] tracking-wide text-ink-500">
           Tap the globe to focus · drag to orbit · scroll to zoom
         </div>
+        <TimeScrubber
+          offsetMinutes={offsetMinutes}
+          onChange={setOffsetMinutes}
+          onReset={() => setOffsetMinutes(0)}
+        />
       </footer>
     </main>
   );

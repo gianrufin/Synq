@@ -9,9 +9,10 @@ converter. Built with Next.js, React Three Fiber, and a glassmorphism UI.
 
 ## Status
 
-**Foundation — base globe (done).** The realistic, controllable 3D globe with a
-live day/night terminator is rendering, wrapped in the Synq design system and a
-floating world-clock HUD.
+**Interactive world clock — complete.** The realistic, controllable 3D globe
+with a live day/night terminator renders inside the Synq design system, marks
+where you are, lets you tap anywhere to read its time, and lets you scrub
+through ±24h with the clocks and shadow moving together.
 
 - [x] Foundational Next.js + React Three Fiber environment
 - [x] High-res Earth (day/night/spec/bump/cloud textures)
@@ -21,7 +22,7 @@ floating world-clock HUD.
 - [x] Glassmorphism HUD: brand mark + local-time clock panel
 - [x] Location detection + highlight user's location on the globe
 - [x] Tap-to-view: fly camera to a tapped location, show its clock
-- [ ] Time-scrubber: drag through time, sync clocks + the globe's shadow
+- [x] Time-scrubber: drag through time, sync clocks + the globe's shadow
 
 ## Tech stack
 
@@ -58,7 +59,7 @@ npm run dev      # http://localhost:3000
 src/
   app/            # Next.js App Router (layout, page, globals, icon)
   components/     # BrandMark, Earth, Starfield, GlobeScene, LocationMarker,
-                  #   CameraFocus, App, hud/*
+                  #   CameraFocus, App, hud/* (ClockPanel, TimeScrubber)
   hooks/          # useNow (ticking clock), useLocation (tz + GPS)
   lib/            # geo (sun/terminator + lat/lon projection), time (Intl),
                   #   timezoneCoords, reverseTz (tapped lat/lon -> IANA zone)
