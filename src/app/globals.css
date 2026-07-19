@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #04060d;
+  color: #eaf1fb;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ambient deep-space gradient behind the globe */
+.space-backdrop {
+  background:
+    radial-gradient(120% 90% at 50% 12%, rgba(59, 130, 246, 0.10) 0%, transparent 55%),
+    radial-gradient(90% 70% at 82% 80%, rgba(139, 147, 255, 0.10) 0%, transparent 60%),
+    radial-gradient(70% 60% at 15% 85%, rgba(245, 166, 35, 0.06) 0%, transparent 60%),
+    #04060d;
+}
+
+/* Glassmorphism panel — the core surface treatment across the app */
+.glass {
+  background: linear-gradient(
+    160deg,
+    rgba(20, 30, 55, 0.62) 0%,
+    rgba(10, 16, 32, 0.55) 100%
+  );
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid rgba(120, 160, 255, 0.14);
+  box-shadow:
+    0 8px 40px -12px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Hairline gradient border accent used on active/highlighted panels */
+.glass-accent {
+  border: 1px solid rgba(95, 212, 255, 0.28);
+  box-shadow:
+    0 8px 40px -12px rgba(0, 0, 0, 0.7),
+    0 0 30px -10px rgba(95, 212, 255, 0.35),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Thin scrollbars that match the aesthetic */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(120, 160, 255, 0.25);
+  border-radius: 999px;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
