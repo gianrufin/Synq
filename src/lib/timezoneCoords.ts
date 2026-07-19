@@ -11,7 +11,7 @@ import { offsetLabel } from "./time";
  * globe scale. Not exhaustive — {@link timeZoneToLatLon} falls back to an
  * offset-derived longitude for anything not listed here.
  */
-const TZ_COORDS: Record<string, LatLon> = {
+export const TZ_COORDS: Record<string, LatLon> = {
   // Africa
   "Africa/Abidjan": { lat: 5.3, lon: -4.0 },
   "Africa/Accra": { lat: 5.6, lon: -0.2 },

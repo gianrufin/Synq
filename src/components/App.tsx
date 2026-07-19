@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import BrandMark from "./BrandMark";
 import SceneBoundary from "./SceneBoundary";
 import ClockPanel from "./hud/ClockPanel";
+import CitySearch from "./hud/CitySearch";
 import HourFormatToggle from "./hud/HourFormatToggle";
 import TimeScrubber from "./hud/TimeScrubber";
 import { useNow } from "@/hooks/useNow";
@@ -98,6 +99,11 @@ export default function App() {
           </div>
         </div>
       </header>
+
+      {/* City search — jump the globe to any city by name. */}
+      <div className="absolute left-1/2 top-5 -translate-x-1/2">
+        <CitySearch onSelect={(city) => handlePick(city.coords)} />
+      </div>
 
       {/* Clock HUD — the user's own location, plus any tapped location below. */}
       <div className="absolute right-5 top-5 flex flex-col items-end gap-3">
