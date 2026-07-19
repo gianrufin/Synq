@@ -118,8 +118,8 @@ export default function CitySearch({ onSelect }: CitySearchProps) {
                 }`}
               >
                 <span className="truncate text-sm text-ink-100">{city.name}</span>
-                <span className="shrink-0 text-[11px] text-ink-500">
-                  {city.region}
+                <span className="ml-2 shrink-0 text-[11px] text-ink-500">
+                  {city.country}
                 </span>
               </button>
             </li>
