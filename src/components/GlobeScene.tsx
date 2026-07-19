@@ -12,6 +12,7 @@ import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { sunDirection, latLonToVector3 } from "@/lib/geo";
 import type { LatLon } from "@/lib/geo";
 import { useNow } from "@/hooks/useNow";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 /**
  * The full-viewport WebGL scene: starfield, day/night Earth, ambient/sun
@@ -39,6 +40,8 @@ export default function GlobeScene({
     [minuteTick],
   );
 
+  const reducedMotion = usePrefersReducedMotion();
+
   const controlsRef = useRef<OrbitControlsImpl>(null);
 
   // Outward direction of the focused point — the camera reframes onto it. A new
@@ -64,9 +67,13 @@ export default function GlobeScene({
 
       <Suspense fallback={null}>
         <Starfield />
-        <Earth sunDir={sunDir} onPick={onPick} />
-        {marker && <LocationMarker coords={marker} color="amber" />}
-        {focus && <LocationMarker coords={focus} color="cyan" />}
+        <Earth sunDir={sunDir} onPick={onPick} reducedMotion={reducedMotion} />
+        {marker && (
+          <LocationMarker coords={marker} color="amber" reducedMotion={reducedMotion} />
+        )}
+        {focus && (
+          <LocationMarker coords={focus} color="cyan" reducedMotion={reducedMotion} />
+        )}
       </Suspense>
 
       <OrbitControls
@@ -78,8 +85,9 @@ export default function GlobeScene({
         zoomSpeed={0.7}
         minDistance={3.2}
         maxDistance={12}
-        // Idle spin, but hold still while a tapped location is in focus.
-        autoRotate={!focus}
+        // Idle spin, but hold still while a tapped location is in focus or the
+        // user has asked to reduce motion.
+        autoRotate={!focus && !reducedMotion}
         autoRotateSpeed={0.35}
       />
       <CameraFocus controlsRef={controlsRef} target={focusDir} />

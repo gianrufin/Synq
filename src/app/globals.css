@@ -70,6 +70,28 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* Keyboard focus ring for interactive controls — visible only for keyboard
+   users (:focus-visible), so pointer interaction stays clean. */
+:where(button, a, input, [role="button"], [tabindex]):focus-visible {
+  outline: 2px solid rgba(95, 212, 255, 0.75);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Respect the OS "reduce motion" preference: neutralise CSS animations and
+   transitions. JS-driven motion (globe spin, cloud drift, marker pulse) is
+   gated separately via usePrefersReducedMotion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Time-scrubber range input — glassy track with a glowing cyan thumb. */
 .scrubber {
   -webkit-appearance: none;
@@ -94,6 +116,10 @@ body {
 }
 .scrubber::-webkit-slider-thumb:hover {
   transform: scale(1.15);
+}
+.scrubber:focus-visible {
+  outline: 2px solid rgba(95, 212, 255, 0.75);
+  outline-offset: 4px;
 }
 .scrubber::-moz-range-thumb {
   width: 16px;

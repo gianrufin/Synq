@@ -15,7 +15,7 @@ where you are, lets you tap anywhere to read its time, and lets you scrub
 through ±24h with the clocks and shadow moving together.
 
 - [x] Foundational Next.js + React Three Fiber environment
-- [x] High-res Earth (day/night/spec/bump/cloud textures)
+- [x] High-res Earth (day/night/spec/cloud textures)
 - [x] Live day/night shadow driven by the real subsolar point (UTC)
 - [x] Clouds, atmospheric rim glow, starfield
 - [x] Auto-rotate when idle + full orbit/zoom control
