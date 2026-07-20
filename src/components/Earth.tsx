@@ -95,14 +95,18 @@ interface EarthProps {
   reducedMotion?: boolean;
 }
 
+// Prefix static assets with the deploy base path (empty at root, "/Synq" on
+// GitHub Pages) so texture URLs resolve under a repo subpath too.
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
 export default function Earth({ sunDir, onPick, reducedMotion }: EarthProps) {
   const [dayMap, nightMap, specMap, cloudMap] = useLoader(
     THREE.TextureLoader,
     [
-      "/textures/earth_day.jpg",
-      "/textures/earth_night.jpg",
-      "/textures/earth_specular.jpg",
-      "/textures/earth_clouds.png",
+      `${BASE}/textures/earth_day.jpg`,
+      `${BASE}/textures/earth_night.jpg`,
+      `${BASE}/textures/earth_specular.jpg`,
+      `${BASE}/textures/earth_clouds.png`,
     ],
   );
 
