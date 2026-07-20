@@ -1,8 +1,14 @@
-name: Hello
+name: Enable Pages
 on:
   workflow_dispatch:
+permissions:
+  pages: write
+  id-token: write
 jobs:
-  hello:
+  enable:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "actions work"
+      - name: Enable GitHub Pages (source = Actions)
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
