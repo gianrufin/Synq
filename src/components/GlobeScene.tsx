@@ -24,11 +24,13 @@ import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 export default function GlobeScene({
   time,
   marker,
+  pins,
   focus,
   onPick,
 }: {
   time: Date;
   marker?: LatLon | null;
+  pins?: LatLon[];
   focus?: LatLon | null;
   onPick?: (coords: LatLon) => void;
 }) {
@@ -79,9 +81,14 @@ export default function GlobeScene({
         {marker && (
           <LocationMarker coords={marker} color="amber" reducedMotion={reducedMotion} />
         )}
-        {focus && (
-          <LocationMarker coords={focus} color="cyan" reducedMotion={reducedMotion} />
-        )}
+        {pins?.map((coords, i) => (
+          <LocationMarker
+            key={`${coords.lat},${coords.lon},${i}`}
+            coords={coords}
+            color="cyan"
+            reducedMotion={reducedMotion}
+          />
+        ))}
       </Suspense>
 
       <OrbitControls
