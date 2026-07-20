@@ -7,6 +7,7 @@ import SceneBoundary from "./SceneBoundary";
 import ClockPanel from "./hud/ClockPanel";
 import CitySearch from "./hud/CitySearch";
 import HourFormatToggle from "./hud/HourFormatToggle";
+import OverlapPanel, { type OverlapZone } from "./hud/OverlapPanel";
 import ShareButton from "./hud/ShareButton";
 import TimeScrubber from "./hud/TimeScrubber";
 import { useNow } from "@/hooks/useNow";
@@ -64,6 +65,8 @@ export default function App() {
   const [hour12, setHour12] = usePersistentState("synq.hour12", false);
   // Time-scrubber offset from "now", in minutes (0 = live); transient.
   const [offsetMinutes, setOffsetMinutes] = useState(0);
+  // Whether the working-hours overlap planner is open.
+  const [showOverlap, setShowOverlap] = useState(false);
 
   // Latest pins for the pick handler, without making it depend on pins.
   const pinsRef = useRef(pins);
@@ -130,6 +133,23 @@ export default function App() {
     () => pins.findIndex((p) => p.id === focusId),
     [pins, focusId],
   );
+
+  // Zones for the overlap planner: the user's own zone (amber) plus each pin.
+  const overlapZones = useMemo<OverlapZone[]>(() => {
+    const zones: OverlapZone[] = [];
+    if (location) {
+      zones.push({ label: timeZoneLabel(timeZone), timeZone, accent: "amber" });
+    }
+    for (const p of pins) {
+      zones.push({
+        label: timeZoneLabel(p.timeZone),
+        timeZone: p.timeZone,
+        accent: "cyan",
+      });
+    }
+    return zones;
+  }, [location, timeZone, pins]);
+  const canPlan = overlapZones.length >= 2;
 
   return (
     <main className="space-backdrop relative h-[100dvh] w-screen overflow-hidden">
@@ -225,6 +245,43 @@ export default function App() {
           </div>
         )}
       </div>
+
+      {/* Working-hours overlap planner (bottom-left), shown once there are at
+          least two zones to compare. */}
+      {canPlan && (
+        <div className="absolute bottom-5 left-5 flex flex-col items-start gap-2">
+          {showOverlap && (
+            <div className="animate-fade-up">
+              <OverlapPanel zones={overlapZones} time={displayTime} />
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => setShowOverlap((v) => !v)}
+            aria-pressed={showOverlap}
+            className="glass flex items-center gap-2 rounded-full px-3.5 py-2 text-xs font-semibold text-ink-100 transition-colors hover:text-cyan-glow"
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
+              <rect
+                x="2"
+                y="3"
+                width="12"
+                height="11"
+                rx="2"
+                stroke="currentColor"
+                strokeWidth="1.4"
+              />
+              <path
+                d="M2 6.5h12M5.5 3V1.5M10.5 3V1.5"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+              />
+            </svg>
+            {showOverlap ? "Hide overlap" : "Plan a time"}
+          </button>
+        </div>
+      )}
 
       {/* Share the current set of cities + scrubbed time as a link. */}
       <div className="absolute bottom-5 right-5">
