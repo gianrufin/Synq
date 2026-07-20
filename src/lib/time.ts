@@ -62,6 +62,21 @@ export function clockParts(
   };
 }
 
+/** Local hour (0–23) and minute in `timeZone` at the given instant. */
+export function zonedHourMinute(
+  date: Date,
+  timeZone: string,
+): { hour: number; minute: number } {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value ?? 0);
+  return { hour: get("hour"), minute: get("minute") };
+}
+
 /** GMT offset label for a tz at a given instant, e.g. "GMT-4". */
 export function offsetLabel(date: Date, timeZone: string): string {
   try {
