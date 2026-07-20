@@ -64,7 +64,7 @@ export default function CitySearch({ onSelect }: CitySearchProps) {
   const showList = open && results.length > 0;
 
   return (
-    <div ref={rootRef} className="relative w-[min(80vw,17rem)]">
+    <div ref={rootRef} className="relative w-full">
       <div className="glass flex items-center gap-2 rounded-2xl px-3.5 py-2.5">
         <svg
           width="15"

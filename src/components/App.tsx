@@ -170,86 +170,95 @@ export default function App() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_50%,transparent_55%,rgba(4,6,13,0.55)_100%)]" />
 
       {/* Header / brand */}
-      <header className="pointer-events-none absolute left-5 top-5 flex items-center gap-3">
-        <div className="glass flex items-center gap-2.5 rounded-2xl px-3.5 py-2.5">
-          <BrandMark size={30} />
+      <header className="pointer-events-none absolute left-3 top-3 z-20 flex items-center gap-3 sm:left-5 sm:top-5">
+        <div className="glass flex items-center gap-2.5 rounded-2xl px-3 py-2 sm:px-3.5 sm:py-2.5">
+          <BrandMark size={28} />
           <div className="leading-tight">
             <div className="text-sm font-semibold tracking-wide text-ink-100">
               Synq
             </div>
-            <div className="text-[10px] uppercase tracking-[0.22em] text-ink-500">
+            <div className="hidden text-[10px] uppercase tracking-[0.22em] text-ink-500 sm:block">
               World Clock
             </div>
           </div>
         </div>
       </header>
 
-      {/* City search — pin any city by name. */}
-      <div className="absolute left-1/2 top-5 -translate-x-1/2">
+      {/* 12h/24h toggle — top-right on both, so the mobile top bar reads
+          brand · toggle. */}
+      <div className="absolute right-3 top-3 z-20 sm:right-5 sm:top-5">
+        <HourFormatToggle hour12={hour12} onChange={setHour12} />
+      </div>
+
+      {/* City search — full-width under the top bar on mobile, centered on desktop. */}
+      <div className="absolute left-3 right-3 top-[4.25rem] z-20 sm:left-1/2 sm:right-auto sm:top-5 sm:w-[min(80vw,17rem)] sm:-translate-x-1/2">
         <CitySearch onSelect={(city) => addPin(city.coords)} />
       </div>
 
-      {/* Clock HUD — the user's own location, plus any pinned locations. */}
-      <div className="absolute right-5 top-5 flex max-h-[calc(100dvh-2.5rem)] flex-col items-end gap-3">
-        <HourFormatToggle hour12={hour12} onChange={setHour12} />
-
+      {/* Clock HUD — a horizontal swipe strip above the footer on mobile, a
+          vertical stack under the toggle on desktop. */}
+      <div
+        className={`absolute inset-x-0 bottom-[8.5rem] z-10 ${
+          showOverlap ? "hidden sm:flex" : "flex"
+        } flex-row items-start gap-3 overflow-x-auto px-3 pb-1 sm:inset-x-auto sm:right-5 sm:top-[4.75rem] sm:bottom-auto sm:max-h-[calc(100dvh-6rem)] sm:flex-col sm:items-end sm:overflow-x-visible sm:overflow-y-auto sm:px-0 sm:pb-0`}
+      >
         {location && (
-          <ClockPanel
-            time={displayTime}
-            timeZone={timeZone}
-            eyebrow={location.source === "gps" ? "Your location" : "Your time zone"}
-            accent="amber"
-            hour12={hour12}
-          />
-        )}
-
-        {pins.length > 0 && (
-          <div className="flex min-h-0 flex-col items-end gap-3 overflow-y-auto pr-0.5">
-            {pins.map((pin) => {
-              const name = timeZoneLabel(pin.timeZone);
-              return (
-                <div key={pin.id} className="relative animate-fade-up">
-                  <button
-                    type="button"
-                    onClick={() => setFocusId(pin.id)}
-                    aria-label={`Focus ${name} on the globe`}
-                    className="block cursor-pointer text-left"
-                  >
-                    <ClockPanel
-                      time={displayTime}
-                      timeZone={pin.timeZone}
-                      title={name}
-                      eyebrow="Pinned"
-                      accent="cyan"
-                      hour12={hour12}
-                    />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => removePin(pin.id)}
-                    aria-label={`Remove ${name}`}
-                    className="glass absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full text-ink-300 transition-colors hover:text-ink-100"
-                  >
-                    <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-                      <path
-                        d="M2 2l8 8M10 2l-8 8"
-                        stroke="currentColor"
-                        strokeWidth="1.6"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              );
-            })}
+          <div className="shrink-0">
+            <ClockPanel
+              time={displayTime}
+              timeZone={timeZone}
+              eyebrow={
+                location.source === "gps" ? "Your location" : "Your time zone"
+              }
+              accent="amber"
+              hour12={hour12}
+            />
           </div>
         )}
+
+        {pins.map((pin) => {
+          const name = timeZoneLabel(pin.timeZone);
+          return (
+            <div key={pin.id} className="relative shrink-0 animate-fade-up">
+              <button
+                type="button"
+                onClick={() => setFocusId(pin.id)}
+                aria-label={`Focus ${name} on the globe`}
+                className="block cursor-pointer text-left"
+              >
+                <ClockPanel
+                  time={displayTime}
+                  timeZone={pin.timeZone}
+                  title={name}
+                  eyebrow="Pinned"
+                  accent="cyan"
+                  hour12={hour12}
+                />
+              </button>
+              <button
+                type="button"
+                onClick={() => removePin(pin.id)}
+                aria-label={`Remove ${name}`}
+                className="glass absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full text-ink-300 transition-colors hover:text-ink-100"
+              >
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                  <path
+                    d="M2 2l8 8M10 2l-8 8"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Working-hours overlap planner (bottom-left), shown once there are at
-          least two zones to compare. */}
+      {/* Working-hours overlap planner — above the scrubber on mobile,
+          bottom-left on desktop. Shown once there are two zones to compare. */}
       {canPlan && (
-        <div className="absolute bottom-5 left-5 flex flex-col items-start gap-2">
+        <div className="absolute bottom-[4.75rem] left-3 z-20 flex flex-col items-start gap-2 sm:bottom-5 sm:left-5">
           {showOverlap && (
             <div className="animate-fade-up">
               <OverlapPanel zones={overlapZones} time={displayTime} />
@@ -284,7 +293,7 @@ export default function App() {
       )}
 
       {/* Share the current set of cities + scrubbed time as a link. */}
-      <div className="absolute bottom-5 right-5">
+      <div className="absolute bottom-[4.75rem] right-3 z-20 sm:bottom-5 sm:right-5">
         <ShareButton
           pins={pinCoords}
           focusIndex={focusIndex}
@@ -292,9 +301,10 @@ export default function App() {
         />
       </div>
 
-      {/* Footer — time-scrubber, with a compact interaction hint above it. */}
-      <footer className="absolute bottom-5 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2">
-        <div className="pointer-events-none text-[11px] tracking-wide text-ink-500">
+      {/* Footer — time-scrubber, with a compact interaction hint above it
+          (hidden on mobile, where space is tight). */}
+      <footer className="absolute bottom-3 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 sm:bottom-5">
+        <div className="pointer-events-none hidden text-[11px] tracking-wide text-ink-500 sm:block">
           Tap the globe or search to pin a place · drag to orbit · scroll to zoom
         </div>
         <TimeScrubber
